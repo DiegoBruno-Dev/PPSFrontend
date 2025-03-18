@@ -64,18 +64,15 @@ class ApiService {
   Future<List<User>> searchUsers({String? country, String? gender}) async {
     final queryParams = <String, String>{};
 
-    // Depuración: Ver el valor de gender antes de enviarlo
     print('Género recibido: $gender');
 
     if (gender != null && gender.isNotEmpty) {
-      // Asegúrate de que 'gender' sea "male" o "female"
       if (gender.toLowerCase() == 'masculino') {
         queryParams['gender'] = 'male';
       } else if (gender.toLowerCase() == 'femenino') {
         queryParams['gender'] = 'female';
       } else {
         print('Género no válido recibido');
-        // Opción de enviar un mensaje de error o manejar el caso donde no se recibe un valor esperado.
         return [];
       }
     }
