@@ -27,6 +27,21 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> searchUsers({String? gender, String? country}) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _users = await _apiService.searchUsers(gender: gender, country: country);
+    } catch (e) {
+      _error = 'Error al buscar usuarios';
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
   Future<void> addUser(User user) async {
     try {
       await _apiService.createUser(user);

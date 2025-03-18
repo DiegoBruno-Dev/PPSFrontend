@@ -61,4 +61,43 @@ class ApiService {
     }
   }
 
+  Future<List<User>> searchUsers({String? country, String? gender}) async {
+    final queryParams = <String, String>{};
+
+    // Depuración: Ver el valor de gender antes de enviarlo
+    print('Género recibido: $gender');
+
+    if (gender != null && gender.isNotEmpty) {
+      // Asegúrate de que 'gender' sea "male" o "female"
+      if (gender.toLowerCase() == 'masculino') {
+        queryParams['gender'] = 'male';
+      } else if (gender.toLowerCase() == 'femenino') {
+        queryParams['gender'] = 'female';
+      } else {
+        print('Género no válido recibido');
+        // Opción de enviar un mensaje de error o manejar el caso donde no se recibe un valor esperado.
+        return [];
+      }
+    }
+
+    if (country != null && country.isNotEmpty) queryParams['country'] = country;
+
+    final uri =
+        Uri.parse('$baseUrl/search?').replace(queryParameters: queryParams);
+
+    print('Parámetros enviados: $queryParams');
+    print('URL de búsqueda: $uri');
+
+    final response = await http.get(uri);
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      final List<dynamic> data = jsonResponse['data'];
+      return data.map((json) => User.fromJson(json)).toList();
+    } else {
+      throw Exception('Error al obtener usuarios');
+    }
+  }
 }

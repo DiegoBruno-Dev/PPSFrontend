@@ -12,10 +12,21 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final TextEditingController _countryController = TextEditingController();
+  String? _selectedGender;
+
   @override
   void initState() {
     super.initState();
     Provider.of<UserProvider>(context, listen: false).fetchUsers();
+  }
+
+  void _searchUsers() {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.searchUsers(
+      country: _countryController.text,
+      gender: _selectedGender,
+    );
   }
 
   @override
@@ -34,80 +45,129 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: userProvider.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : userProvider.error != null
-              ? Center(
-                  child: Text(userProvider.error!,
-                      style: TextStyle(color: Colors.red, fontSize: 16)))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(10),
-                  itemCount: userProvider.users.length,
-                  itemBuilder: (context, index) {
-                    final user = userProvider.users[index];
-                    return Card(
-                      elevation: 5,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15)),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 15),
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.blueAccent,
-                          child: Text(
-                            user.name[0],
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _countryController,
+                    decoration: const InputDecoration(labelText: 'País'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    value: _selectedGender,
+                    decoration: const InputDecoration(labelText: 'Género'),
+                    items: [
+                      DropdownMenuItem(
+                        value: 'male',
+                        child: Text('Masculino'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'female',
+                        child: Text('Femenino'),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedGender = value;
+                      });
+                    },
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.search, color: Colors.blue),
+                  onPressed: _searchUsers,
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: userProvider.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : userProvider.error != null
+                    ? Center(
+                        child: Text(userProvider.error!,
                             style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        title: Text(
-                          user.name,
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          '${user.gender} - ${user.country}',
-                          style: TextStyle(color: Colors.grey[700]),
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  UserDetailScreen(user: user),
-                            ),
-                          );
-                        },
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit, color: Colors.blue),
-                              onPressed: () async {
-                                final result = await Navigator.push(
+                                color: Colors.red, fontSize: 16)))
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(10),
+                        itemCount: userProvider.users.length,
+                        itemBuilder: (context, index) {
+                          final user = userProvider.users[index];
+                          return Card(
+                            elevation: 5,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 15),
+                              leading: CircleAvatar(
+                                backgroundColor: Colors.blueAccent,
+                                child: Text(
+                                  user.name[0],
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              title: Text(
+                                user.name,
+                                style: const TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Text(
+                                '${user.gender} - ${user.country}',
+                                style: TextStyle(color: Colors.grey[700]),
+                              ),
+                              onTap: () {
+                                Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        UserFormScreen(user: user),
+                                        UserDetailScreen(user: user),
                                   ),
                                 );
-                                if (result == true) {
-                                  userProvider.fetchUsers();
-                                }
                               },
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit,
+                                        color: Colors.blue),
+                                    onPressed: () async {
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              UserFormScreen(user: user),
+                                        ),
+                                      );
+                                      if (result == true) {
+                                        userProvider.fetchUsers();
+                                      }
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.red),
+                                    onPressed: () =>
+                                        userProvider.deleteUser(user.id),
+                                  ),
+                                ],
+                              ),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => userProvider.deleteUser(user.id),
-                            ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final result = await Navigator.push(
