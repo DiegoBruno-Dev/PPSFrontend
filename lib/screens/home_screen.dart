@@ -13,7 +13,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _countryController = TextEditingController();
-  String? _selectedGender;
+  final TextEditingController _genderController =
+      TextEditingController(); // Controlador para el género
 
   @override
   void initState() {
@@ -25,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     userProvider.searchUsers(
       country: _countryController.text,
-      gender: _selectedGender,
+      gender: _genderController.text.isNotEmpty ? _genderController.text : null,
     );
   }
 
@@ -59,24 +60,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: DropdownButtonFormField<String>(
-                    value: _selectedGender,
-                    decoration: const InputDecoration(labelText: 'Género'),
-                    items: [
-                      DropdownMenuItem(
-                        value: 'male',
-                        child: Text('Masculino'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'female',
-                        child: Text('Femenino'),
-                      ),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedGender = value;
-                      });
-                    },
+                  child: TextField(
+                    controller:
+                        _genderController, // Usamos un TextField para el género
+                    decoration: const InputDecoration(
+                        labelText: 'Género (masculino/femenino)'),
                   ),
                 ),
                 IconButton(

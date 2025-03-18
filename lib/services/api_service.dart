@@ -64,36 +64,44 @@ class ApiService {
   Future<List<User>> searchUsers({String? country, String? gender}) async {
     final queryParams = <String, String>{};
 
-    print('Género recibido: $gender');
-
+    // Validación del género y ajuste del valor
     if (gender != null && gender.isNotEmpty) {
       if (gender.toLowerCase() == 'masculino') {
         queryParams['gender'] = 'male';
       } else if (gender.toLowerCase() == 'femenino') {
         queryParams['gender'] = 'female';
       } else {
+        // Si el género no es válido
         print('Género no válido recibido');
         return [];
       }
     }
 
-    if (country != null && country.isNotEmpty) queryParams['country'] = country;
+    // Si se proporciona un país, agregarlo a los parámetros
+    if (country != null && country.isNotEmpty) {
+      queryParams['country'] = country;
+    }
 
+    // Construcción de la URL con los parámetros de la consulta
     final uri =
         Uri.parse('$baseUrl/search?').replace(queryParameters: queryParams);
 
-    print('Parámetros enviados: $queryParams');
+    // Log de la URL y parámetros
     print('URL de búsqueda: $uri');
+    print('Parámetros enviados: $queryParams');
 
     final response = await http.get(uri);
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+
+    // Verificación de la respuesta del servidor
+    print('Código de estado: ${response.statusCode}');
+    print('Respuesta del servidor: ${response.body}');
 
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
       final List<dynamic> data = jsonResponse['data'];
       return data.map((json) => User.fromJson(json)).toList();
     } else {
+      // Si no es un estado 200, mostrar error
       throw Exception('Error al obtener usuarios');
     }
   }
