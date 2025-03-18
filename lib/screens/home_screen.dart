@@ -13,8 +13,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _countryController = TextEditingController();
-  final TextEditingController _genderController =
-      TextEditingController(); // Controlador para el género
+  final TextEditingController _genderController = TextEditingController();
 
   @override
   void initState() {
@@ -61,8 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: TextField(
-                    controller:
-                        _genderController, // Usamos un TextField para el género
+                    controller: _genderController,
                     decoration: const InputDecoration(
                         labelText: 'Género (masculino/femenino)'),
                   ),
