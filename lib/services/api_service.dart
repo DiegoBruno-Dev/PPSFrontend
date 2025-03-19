@@ -64,7 +64,6 @@ class ApiService {
   Future<List<User>> searchUsers({String? country, String? gender}) async {
     final queryParams = <String, String>{};
 
-    // Validación del género y ajuste del valor
     if (gender != null && gender.isNotEmpty) {
       if (gender.toLowerCase() == 'masculino') {
         queryParams['gender'] = 'male';
