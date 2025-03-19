@@ -25,7 +25,7 @@ class _UserFormScreenState extends State<UserFormScreen> {
     super.initState();
     if (widget.user != null) {
       _nameController.text = widget.user!.name;
-      _countryController.text = widget.user!.country;
+      _countryController.text = capitalizeFirstLetter(widget.user!.country);
       _addressController.text = widget.user!.address ?? '';
       _emailController.text = widget.user!.email ?? '';
       _numberPhoneController.text = widget.user!.numberPhone ?? '';
@@ -45,6 +45,11 @@ class _UserFormScreenState extends State<UserFormScreen> {
     super.dispose();
   }
 
+  String capitalizeFirstLetter(String country) {
+    if (country.isEmpty) return country;
+    return country[0].toUpperCase() + country.substring(1).toLowerCase();
+  }
+
   void _saveUser() async {
     if (_formKey.currentState!.validate()) {
       final apiService = ApiService();
@@ -52,7 +57,7 @@ class _UserFormScreenState extends State<UserFormScreen> {
         id: widget.user?.id ?? 0,
         name: _nameController.text,
         gender: _selectedGender ?? "Masculino",
-        country: _countryController.text,
+        country: capitalizeFirstLetter(_countryController.text),
         address: _addressController.text,
         email: _emailController.text,
         numberPhone: _numberPhoneController.text,
